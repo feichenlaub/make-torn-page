@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ $# -ne 1 ]; 
-    then echo "Syntax: makeborder.sh inputfile.png"
+if [ $# -ne 2 ]; 
+    then echo "Syntax: makeborder.sh inputfile.png bordersize"
     exit
 fi
 
@@ -15,6 +15,7 @@ filename=$(basename "$INFILE")
 fname="${filename%.*}"
 ext="${filename##*.}"
 OUTFILE=/tmp/"$fname"_border."$ext"
+BORDERWIDTH=$2
 
 #echo "Input File: $INFILE"
 #echo "Filename without Path: $filename"
@@ -25,19 +26,7 @@ OUTFILE=/tmp/"$fname"_border."$ext"
 
 WIDTH=`identify -format "%W" $INFILE`
 echo "Original file's width is $WIDTH"
-
-# Get resolution of image in x direction, and convert it to an integer
-RESOLUTION=`identify -units PixelsPerInch -format "%x" $INFILE`
-RESOLUTIONINT=${RESOLUTION%.*}
-
-if [ "$RESOLUTIONINT" -gt 77 ]; then
-  echo "Resoluthion is high"
-	BORDERWIDTH=6
-else
-  echo "Resolution is low"
-	BORDERWIDTH=3
-fi
-echo "Resolution is $RESOLUTIONINT, so border width is $BORDERWIDTH"
+echo "Border width is $BORDERWIDTH"
 
 # Intermediary file names:
 ORIGINAL_IMAGE_WITH_BORDER="/tmp/barf.png"
@@ -68,7 +57,7 @@ echo "Adding drop shadow..."
 convert $SUBTRACT \( -clone 0 -background gray -shadow 80x3+10+10 \) -reverse -background none -layers merge +repage $OUTFILE 
 
 echo "File with order is in $OUTFILE"
-if [ "$RESOLUTIONINT" -gt 77 ]; then
+if [ $BORDERWIDTH -eq 6 ]; then
 	let SCALED=$WIDTH/2
    echo "Be sure to add :width: $SCALED"
 fi
