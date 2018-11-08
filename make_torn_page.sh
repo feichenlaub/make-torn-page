@@ -29,18 +29,20 @@ echo "Original file's width is $WIDTH"
 echo "Border width is $BORDERWIDTH"
 
 # Intermediary file names:
-ORIGINAL_IMAGE_WITH_BORDER="/tmp/barf.png"
-TORN_PAGE="/tmp/torn.png"
-TORN_PAGE_RESIZE="/tmp/torn_width.png"
+ORIGINAL_IMAGE_WITH_BORDER="/tmp/original-file-with-border.png"
+TORN_PAGE="/tmp/torn-page.png"
+TORN_PAGE_RESIZE="/tmp/torn_page-resize.png"
 SUBTRACT="/tmp/subtract.png"
 # Draw border around image.
 echo "Drawing border around initial image..."
+
+# This ADDS a border to the image making it wider. Need to fix so that no width is added to the image.
 convert $INFILE -bordercolor "#c0c0c0" -border $BORDERWIDTH $ORIGINAL_IMAGE_WITH_BORDER
 
 # Create torn shape
 
 echo "Creating torn shape..."
-convert -size 1302x81 xc:none -matte -stroke black -fill "#ff0000" -strokewidth 1 -draw "polyline 0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80" $TORN_PAGE
+convert -size 1302x81 xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline 0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80" $TORN_PAGE
 
 # Resize torn shape to width of image
 
@@ -50,7 +52,7 @@ convert $TORN_PAGE -resize ${WIDTH}! $TORN_PAGE_RESIZE
 # Subtract torn page from original image
 
 echo "Subtracting torn shape from initial image..."
-convert  $ORIGINAL_IMAGE_WITH_BORDER $TORN_PAGE_RESIZE -gravity South -compose Xor -composite $SUBTRACT
+convert $ORIGINAL_IMAGE_WITH_BORDER $TORN_PAGE_RESIZE -alpha Off -gravity South -compose CopyOpacity -composite $SUBTRACT
 
 # Add drop shadow from subtracted image
 echo "Adding drop shadow..."
