@@ -33,11 +33,14 @@ ORIGINAL_IMAGE_WITH_BORDER="/tmp/original-file-with-border.png"
 TORN_PAGE="/tmp/torn-page.png"
 TORN_PAGE_RESIZE="/tmp/torn_page-resize.png"
 SUBTRACT="/tmp/subtract.png"
-# Draw border around image.
+#
+# Draw border around image
+# First shave the image by the border width, then
+# add the border to the image. Adding the border
+# returns the image to its original sizse.
+#
 echo "Drawing border around initial image..."
-
-# This ADDS a border to the image making it wider. Need to fix so that no width is added to the image.
-convert $INFILE -bordercolor "#c0c0c0" -border $BORDERWIDTH $ORIGINAL_IMAGE_WITH_BORDER
+convert $INFILE -shave $BORDERWIDTH -bordercolor "#c0c0c0" -border $BORDERWIDTH $ORIGINAL_IMAGE_WITH_BORDER
 
 # Create torn shape
 
@@ -63,5 +66,4 @@ if [ $BORDERWIDTH -eq 6 ]; then
 	let SCALED=$WIDTH/2
    echo "Be sure to add :width: $SCALED"
 fi
-
 
