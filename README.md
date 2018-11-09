@@ -20,7 +20,7 @@ Before | After
 
 # Usage
 ```
-make_torn_page.sh <inputfile> <borderwidth>
+make_torn_page.sh <inputfile> 
 ```
 * `inputfile` Any graphic file supported by ImageMagick (png, jpg, gif, etc.).
-* `borderwidth` Width of border to be placed around the image.
+
