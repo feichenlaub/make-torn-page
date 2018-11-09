@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ $# -ne 2 ]; 
-    then echo "Syntax: makeborder.sh inputfile.png bordersize"
+if [ $# -ne 1 ]; 
+    then echo "Syntax: makeborder.sh inputfile.png"
     exit
 fi
 
@@ -15,7 +15,6 @@ filename=$(basename "$INFILE")
 fname="${filename%.*}"
 ext="${filename##*.}"
 OUTFILE=/tmp/"$fname"_border."$ext"
-BORDERWIDTH=$2
 
 #echo "Input File: $INFILE"
 #echo "Filename without Path: $filename"
@@ -26,6 +25,11 @@ BORDERWIDTH=$2
 
 WIDTH=`identify -format "%W" $INFILE`
 echo "Original file's width is $WIDTH"
+
+# Compute border width as a function of the print width
+PRINTWIDTH=`identify -format "%[printsize.x]" $INFILE`
+BORDERWIDTH=`echo "scale=0;($PRINTWIDTH*0.0857-0.0857)/1 + 1" | bc`
+
 echo "Border width is $BORDERWIDTH"
 
 # Intermediary file names:
