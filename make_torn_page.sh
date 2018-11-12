@@ -27,8 +27,7 @@ WIDTH=`identify -format "%W" $INFILE`
 echo "Original file's width is $WIDTH"
 
 # Compute border width as a function of the print width
-PRINTWIDTH=`identify -format "%[printsize.x]" $INFILE`
-BORDERWIDTH=`echo "scale=0;($PRINTWIDTH*0.0857-0.0857)/1 + 1" | bc`
+BORDERWIDTH=`echo "scale=0;($WIDTH*0.002859)/1 + 1" | bc`
 
 echo "Border width is $BORDERWIDTH"
 
@@ -66,7 +65,7 @@ echo "Adding drop shadow..."
 convert $SUBTRACT \( -clone 0 -background gray -shadow 80x3+10+10 \) -reverse -background none -layers merge +repage $OUTFILE 
 
 echo "File with order is in $OUTFILE"
-if [ $BORDERWIDTH -eq 6 ]; then
+if [ $BORDERWIDTH -gt 3 ]; then
 	let SCALED=$WIDTH/2
    echo "Be sure to add :width: $SCALED"
 fi
