@@ -21,14 +21,21 @@ OUTFILE=/tmp/"$fname"_border."$ext"
 #echo "Filename without Extension: $fname"
 #echo "File Extension without Name: $ext"
 
-# Get width of image 
+# Get width and height of incoming image 
 
 WIDTH=`identify -format "%W" $INFILE`
+HEIGHT=`identify -format "%H" $INFILE`
+BASEWIDTH=1302
+BASEHEIGHT=81
+RATIOWIDTH=`echo "scale=2;$WIDTH/$BASEWIDTH" | bc`
+DELTAHEIGHT=`expr $HEIGHT - $BASEHEIGHT`
 echo "Original file's width is $WIDTH"
+echo "Original file's height is $HEIGHT"
+echo "Width ratio is $RATIOWIDTH"
+echo "Delta height is $DELTAHEIGHT"
 
 # Compute border width as a function of the print width
 BORDERWIDTH=`echo "scale=0;($WIDTH*0.002859)/1 + 1" | bc`
-
 echo "Border width is $BORDERWIDTH"
 
 # Intermediary file names:
@@ -45,15 +52,27 @@ SUBTRACT="/tmp/subtract.png"
 echo "Drawing border around initial image..."
 convert $INFILE -shave $BORDERWIDTH -bordercolor "#c0c0c0" -border $BORDERWIDTH $ORIGINAL_IMAGE_WITH_BORDER
 
+declare -a pathpoints=(0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80)
+echo ${pathpoints[@]}
+for i in "${pathpoints[@]}"
+do
+	SCALEDPATH+=`echo $i|awk -F,  '{printf "%d,%d ", '$RATIOWIDTH'*$1,'$DELTAHEIGHT'+$2}'`
+  #echo $i
+done
+echo "SCALEDPATH IS $SCALEDPATH"
 # Create torn shape
 
+
+
+
 echo "Creating torn shape..."
-convert -size 1302x81 xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline 0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80" $TORN_PAGE
+#convert -size 1302x81 xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline 0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80" $TORN_PAGE
+convert -size "$WIDTH"x"$HEIGHT" xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline $SCALEDPATH" $TORN_PAGE_RESIZE
 
 # Resize torn shape to width of image
 
-echo "Resizing torn shape..."
-convert $TORN_PAGE -resize ${WIDTH}! $TORN_PAGE_RESIZE
+#echo "Resizing torn shape..."
+#convert $TORN_PAGE -resize ${WIDTH}! $TORN_PAGE_RESIZE
 
 # Subtract torn page from original image
 
@@ -70,3 +89,8 @@ if [ $BORDERWIDTH -gt 3 ]; then
    echo "Be sure to add :width: $SCALED"
 fi
 
+function xcoord() {
+  local newx
+  echo "$newx"
+  
+}
