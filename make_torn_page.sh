@@ -25,14 +25,8 @@ OUTFILE=/tmp/"$fname"_border."$ext"
 
 WIDTH=`identify -format "%W" $INFILE`
 HEIGHT=`identify -format "%H" $INFILE`
-BASEWIDTH=1302
-BASEHEIGHT=81
-RATIOWIDTH=`echo "scale=2;$WIDTH/$BASEWIDTH" | bc`
-DELTAHEIGHT=`expr $HEIGHT - $BASEHEIGHT`
 echo "Original file's width is $WIDTH"
 echo "Original file's height is $HEIGHT"
-echo "Width ratio is $RATIOWIDTH"
-echo "Delta height is $DELTAHEIGHT"
 
 # Compute border width as a function of the print width
 BORDERWIDTH=`echo "scale=0;($WIDTH*0.002859)/1 + 1" | bc`
@@ -52,27 +46,13 @@ SUBTRACT="/tmp/subtract.png"
 echo "Drawing border around initial image..."
 convert $INFILE -shave $BORDERWIDTH -bordercolor "#c0c0c0" -border $BORDERWIDTH $ORIGINAL_IMAGE_WITH_BORDER
 
-declare -a pathpoints=(0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80)
-echo ${pathpoints[@]}
-for i in "${pathpoints[@]}"
-do
-	SCALEDPATH+=`echo $i|awk -F,  '{printf "%d,%d ", '$RATIOWIDTH'*$1,'$DELTAHEIGHT'+$2}'`
-  #echo $i
-done
-echo "SCALEDPATH IS $SCALEDPATH"
-# Create torn shape
-
-
-
-
 echo "Creating torn shape..."
-#convert -size 1302x81 xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline 0,80 120,28 255,42 395,25 502,48 685,0 855,35 1000,18 1072,45 1213,19 1263,33 1302,80 0,80" $TORN_PAGE
-convert -size "$WIDTH"x"$HEIGHT" xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline $SCALEDPATH" $TORN_PAGE_RESIZE
+convert -size 1302x1000 xc:white -matte -stroke black -fill black -strokewidth 1 -draw "polyline 0,999 120,947 255,961 395,944 502,967 685,919 855,954 1000,937 1072,964 1213,938 1263,952 1302,999 0,999" $TORN_PAGE
 
 # Resize torn shape to width of image
 
-#echo "Resizing torn shape..."
-#convert $TORN_PAGE -resize ${WIDTH}! $TORN_PAGE_RESIZE
+echo "Resizing torn shape..."
+convert $TORN_PAGE -resize ${WIDTH}x${HEIGHT}! $TORN_PAGE_RESIZE
 
 # Subtract torn page from original image
 
@@ -83,14 +63,9 @@ convert $ORIGINAL_IMAGE_WITH_BORDER $TORN_PAGE_RESIZE -alpha Off -gravity South 
 echo "Adding drop shadow..."
 convert $SUBTRACT \( -clone 0 -background gray -shadow 80x3+10+10 \) -reverse -background none -layers merge +repage $OUTFILE 
 
-echo "File with order is in $OUTFILE"
+echo "File with torn page is in $OUTFILE"
 if [ $BORDERWIDTH -gt 3 ]; then
 	let SCALED=$WIDTH/2
    echo "Be sure to add :width: $SCALED"
 fi
 
-function xcoord() {
-  local newx
-  echo "$newx"
-  
-}
