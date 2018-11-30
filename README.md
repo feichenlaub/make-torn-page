@@ -20,7 +20,8 @@ Before | After
 
 # Usage
 ```
-make_torn_page.sh <inputfile> 
+makeborder.sh [-s t|b|l|r] inputfile.png
 ```
+* `-s` Side for the tear: top, buttom, left, right. Defaults to bottom.
 * `inputfile` Any graphic file supported by ImageMagick (png, jpg, gif, etc.).
 
